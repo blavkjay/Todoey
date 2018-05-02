@@ -12,9 +12,14 @@ class ToDoListViewController: UITableViewController {
 
     var itemArray = ["find mike","buy cartons","find demogorgon"]
     
+    let defualt = UserDefaults.standard
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+      if let  items = defualt.array(forKey: "TodoListArray") as? [String]{
+            itemArray = items
+        }
     }
     
     //MARK - TableView DataSource Methods
@@ -33,7 +38,7 @@ class ToDoListViewController: UITableViewController {
     
     //MARK - TableView Delegate Methods
     
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
        // let rowSelected = itemArray[indexPath.row]
         
@@ -64,6 +69,7 @@ class ToDoListViewController: UITableViewController {
             //itemArray.append(NewItem.text)
             //if textField.text! != ""{
             self.itemArray.append(textField.text!)
+            self.defualt.set(self.itemArray, forKey: "TodoListArray")
                 self.tableView.reloadData()
            // }else{
                 
