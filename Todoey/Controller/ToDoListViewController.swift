@@ -11,25 +11,14 @@ import UIKit
 class ToDoListViewController: UITableViewController {
 
     var itemArray = [Items]()
-    
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("item.plist")
     let defualt = UserDefaults.standard
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let newItem = Items()
-        newItem.title = "Find Mike"
-        itemArray.append(newItem)
-        let newItem2 = Items()
-        newItem2.title = "moyin the bad guy"
-        itemArray.append(newItem2)
-        let newItem3 = Items()
-        newItem3.title = "yoyo bitters"
-        itemArray.append(newItem3)
         // Do any additional setup after loading the view, typically from a nib.
-      if let  items = defualt.array(forKey: "TodoListArray") as? [Items]{
-            itemArray = items
-        }
+        loadData()
     }
     
     //MARK - TableView DataSource Methods
@@ -59,6 +48,7 @@ class ToDoListViewController: UITableViewController {
         
         //print(rowSelected)
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        saveItems()
 //        if itemArray[indexPath.row].done == false{
 //            itemArray[indexPath.row].done = true
 //        }else{
@@ -72,7 +62,7 @@ class ToDoListViewController: UITableViewController {
 //        tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
 //        }
         
-        tableView.reloadData()
+     //   tableView.reloadData()
         
         tableView.deselectRow(at: indexPath, animated: true)
     }
@@ -93,8 +83,9 @@ class ToDoListViewController: UITableViewController {
             newItem.title = textField.text!
             
             self.itemArray.append(newItem)
-            self.defualt.set(self.itemArray, forKey: "TodoListArray")
-                self.tableView.reloadData()
+            self.saveItems()
+          //  self.defualt.set(self.itemArray, forKey: "TodoListArray")
+            
            // }else{
                 
            // }
@@ -105,8 +96,35 @@ class ToDoListViewController: UITableViewController {
         }
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
+        
+    }
+    //MARK - Model Manipulation Methods
+    
+    func saveItems(){
+        let encoder = PropertyListEncoder()
+        do{
+            let data = try encoder.encode(itemArray)
+            try data.write(to: dataFilePath!)
+        } catch{
+            
+        }
+        
+        self.tableView.reloadData()
     }
     
+    func loadData(){
+        
+        if let data = try? Data(contentsOf: dataFilePath!){
+            let decoder = PropertyListDecoder()
+            
+            do{
+            itemArray = try decoder.decode([Items].self, from: data)
+            }catch{
+                print("Error \(error)")
+            }
+        }
+        
+    }
 
 }
 
